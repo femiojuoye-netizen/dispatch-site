@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch — Create Account</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --paper:#EDE6D6; --paper-dim:#E2D9C4; --ink:#1B1B18; --ink-soft:#4A463D;
+    --pine:#2F5D50; --pine-dark:#1F3F36; --brick:#C4432B; --brass:#8C7851;
+    --line: rgba(27,27,24,0.14);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  h1,h2{font-family:'Fraunces',serif; margin:0;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{color:var(--pine);}
+
+  .card{
+    width:100%; max-width:440px; background:var(--paper); border:1px solid var(--line);
+    border-radius:2px; padding:40px;
+  }
+  .logo{
+    font-family:'Fraunces',serif; font-weight:700; font-size:1.2rem; display:flex; align-items:center;
+    gap:8px; margin-bottom:32px; text-decoration:none; color:var(--ink);
+  }
+  .logo-mark{width:9px; height:9px; background:var(--brick); border-radius:50%;}
+
+  .tabs{display:flex; gap:0; margin-bottom:28px; border:1px solid var(--line); border-radius:2px; overflow:hidden;}
+  .tab{
+    flex:1; padding:12px; text-align:center; font-size:0.88rem; font-weight:500; cursor:pointer;
+    background:var(--paper); color:var(--ink-soft); border:none; font-family:'Inter',sans-serif;
+  }
+  .tab.active{background:var(--ink); color:var(--paper);}
+
+  h1{font-size:1.5rem; margin-bottom:6px;}
+  .sub{color:var(--ink-soft); font-size:0.88rem; margin-bottom:28px;}
+
+  label{font-size:0.82rem; font-weight:500; display:block; margin-bottom:6px; margin-top:16px;}
+  input, select{
+    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:2px;
+    font-family:'Inter',sans-serif; font-size:0.92rem; background:var(--paper); color:var(--ink);
+  }
+  input:focus, select:focus{outline:2px solid var(--pine); outline-offset:1px;}
+
+  .btn-primary{
+    width:100%; margin-top:26px; background:var(--brick); color:var(--paper); padding:14px;
+    border:none; border-radius:2px; font-weight:600; font-size:0.95rem; cursor:pointer;
+  }
+  .btn-primary:disabled{opacity:0.6; cursor:not-allowed;}
+
+  .switch{margin-top:22px; text-align:center; font-size:0.86rem; color:var(--ink-soft);}
+  .switch a{cursor:pointer; text-decoration:underline;}
+
+  .msg{
+    margin-top:18px; padding:12px 14px; border-radius:2px; font-size:0.85rem; display:none;
+  }
+  .msg.error{background:rgba(196,67,43,0.1); color:var(--brick); display:block;}
+  .msg.success{background:rgba(47,93,80,0.1); color:var(--pine); display:block;}
+
+  .field-group{display:none;}
+  .field-group.active{display:block;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <a href="index.html" class="logo"><span class="logo-mark"></span>Dispatch</a>
+
+  <div class="tabs">
+    <button class="tab active" id="tab-login" onclick="setMode('login')">Log in</button>
+    <button class="tab" id="tab-signup" onclick="setMode('signup')">Create account</button>
+  </div>
+
+  <div id="login-view">
+    <h1>Welcome back</h1>
+    <p class="sub">Log in to your Dispatch account.</p>
+
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="you@example.com">
+
+    <label for="login-password">Password</label>
+    <input type="password" id="login-password" placeholder="••••••••">
+
+    <button class="btn-primary" id="login-btn" onclick="handleLogin()">Log in</button>
+    <div class="msg" id="login-msg"></div>
+  </div>
+
+  <div id="signup-view" style="display:none;">
+    <h1>Create your account</h1>
+    <p class="sub">Join Dispatch as a client or a network member.</p>
+
+    <label>I'm signing up as</label>
+    <select id="account-type" onchange="toggleNicheField()">
+      <option value="client">Client — I want outreach or video editing</option>
+      <option value="network_member">Network Member — I want to engage &amp; earn</option>
+    </select>
+
+    <label for="signup-name">Full name</label>
+    <input type="text" id="signup-name" placeholder="Your name">
+
+    <label for="signup-email">Email</label>
+    <input type="email" id="signup-email" placeholder="you@example.com">
+
+    <label for="signup-password">Password</label>
+    <input type="password" id="signup-password" placeholder="At least 6 characters">
+
+    <div id="niche-field">
+      <label for="signup-niche">Your niche</label>
+      <input type="text" id="signup-niche" placeholder="e.g. fitness, music, SaaS">
+    </div>
+
+    <button class="btn-primary" id="signup-btn" onclick="handleSignup()">Create account</button>
+    <div class="msg" id="signup-msg"></div>
+  </div>
+
+  <div class="switch">
+    <span id="switch-login-text" style="display:none;">Already have an account? <a onclick="setMode('login')">Log in</a></span>
+    <span id="switch-signup-text">Don't have an account? <a onclick="setMode('signup')">Create one</a></span>
+  </div>
+</div>
+
+<script>
+  // Connect to Supabase
+  const SUPABASE_URL = 'https://otraoxxykaheqfyjqvng.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_QtGMHxI-nn2iJov1AIp6hw_LbARqsdx';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  function setMode(mode){
+    const isLogin = mode === 'login';
+    document.getElementById('login-view').style.display = isLogin ? 'block' : 'none';
+    document.getElementById('signup-view').style.display = isLogin ? 'none' : 'block';
+    document.getElementById('tab-login').classList.toggle('active', isLogin);
+    document.getElementById('tab-signup').classList.toggle('active', !isLogin);
+    document.getElementById('switch-login-text').style.display = isLogin ? 'none' : 'inline';
+    document.getElementById('switch-signup-text').style.display = isLogin ? 'inline' : 'none';
+  }
+
+  function toggleNicheField(){
+    const type = document.getElementById('account-type').value;
+    document.getElementById('niche-field').style.display = 'block'; // both types have a niche
+  }
+
+  function showMsg(id, text, isError){
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + (isError ? 'error' : 'success');
+  }
+
+  async function handleSignup(){
+    const btn = document.getElementById('signup-btn');
+    const name = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const password = document.getElementById('signup-password').value;
+    const accountType = document.getElementById('account-type').value;
+    const niche = document.getElementById('signup-niche').value.trim();
+
+    if(!name || !email || !password){
+      showMsg('signup-msg', 'Please fill in all fields.', true);
+      return;
+    }
+    if(password.length < 6){
+      showMsg('signup-msg', 'Password must be at least 6 characters.', true);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    const { data, error } = await supabase.auth.signUp({ email, password });
+
+    if(error){
+      showMsg('signup-msg', error.message, true);
+      btn.disabled = false;
+      btn.textContent = 'Create account';
+      return;
+    }
+
+    // Create the profile row
+    if(data.user){
+      const { error: profileError } = await supabase.from('profiles').insert({
+        id: data.user.id,
+        full_name: name,
+        account_type: accountType,
+        niche: niche
+      });
+      if(profileError){
+        showMsg('signup-msg', 'Account created, but profile setup failed: ' + profileError.message, true);
+        btn.disabled = false;
+        btn.textContent = 'Create account';
+        return;
+      }
+    }
+
+    showMsg('signup-msg', 'Account created! Check your email to confirm, then log in.', false);
+    btn.disabled = false;
+    btn.textContent = 'Create account';
+  }
+
+  async function handleLogin(){
+    const btn = document.getElementById('login-btn');
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    if(!email || !password){
+      showMsg('login-msg', 'Please enter your email and password.', true);
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Logging in...';
+
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if(error){
+      showMsg('login-msg', error.message, true);
+      btn.disabled = false;
+      btn.textContent = 'Log in';
+      return;
+    }
+
+    showMsg('login-msg', 'Logged in! Redirecting...', false);
+    setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
+  }
+</script>
+
+</body>
+</html>
