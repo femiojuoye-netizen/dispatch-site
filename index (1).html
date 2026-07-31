@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch — Real Outreach, Real Edits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D6;
+    --paper-dim:#E2D9C4;
+    --ink:#1B1B18;
+    --ink-soft:#4A463D;
+    --pine:#2F5D50;
+    --pine-dark:#1F3F36;
+    --brick:#C4432B;
+    --brass:#8C7851;
+    --line: rgba(27,27,24,0.14);
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+  }
+  h1,h2,h3{
+    font-family:'Fraunces', serif;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{
+    font-family:'JetBrains Mono', monospace;
+    letter-spacing:0.02em;
+  }
+  a{color:inherit;}
+  .wrap{max-width:1160px; margin:0 auto; padding:0 32px;}
+
+  /* NAV */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:var(--paper);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height:72px;
+  }
+  .logo{
+    font-family:'Fraunces', serif; font-weight:700; font-size:1.3rem;
+    display:flex; align-items:center; gap:8px;
+  }
+  .logo-mark{
+    width:10px; height:10px; background:var(--brick); border-radius:50%;
+    display:inline-block;
+  }
+  .nav-links{display:flex; gap:28px; font-size:0.92rem;}
+  .nav-links a{text-decoration:none; color:var(--ink-soft); transition:color .15s;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-cta{
+    background:var(--ink); color:var(--paper); padding:10px 20px;
+    border-radius:2px; text-decoration:none; font-size:0.88rem; font-weight:500;
+  }
+
+  /* HERO */
+  header.hero{padding:96px 0 0;}
+  .hero-inner{
+    display:grid; grid-template-columns:1.15fr 0.85fr; gap:48px; align-items:start;
+  }
+  .eyebrow{
+    font-size:0.78rem; text-transform:uppercase; color:var(--brick);
+    display:flex; align-items:center; gap:10px; margin-bottom:22px;
+  }
+  .eyebrow::before{content:''; width:26px; height:1px; background:var(--brick);}
+  h1.headline{
+    font-size:clamp(2.6rem, 5vw, 4.2rem);
+    font-weight:600; line-height:1.02;
+  }
+  h1.headline em{font-style:italic; color:var(--pine);}
+  .hero-sub{
+    margin-top:24px; font-size:1.1rem; color:var(--ink-soft); max-width:46ch;
+  }
+  .hero-actions{display:flex; gap:14px; margin-top:36px;}
+  .btn-primary{
+    background:var(--brick); color:var(--paper); padding:14px 26px;
+    border:none; border-radius:2px; font-weight:600; font-size:0.95rem;
+    text-decoration:none; display:inline-block; cursor:pointer;
+    transition:transform .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px);}
+  .btn-ghost{
+    padding:14px 22px; border:1px solid var(--ink); border-radius:2px;
+    font-weight:500; font-size:0.95rem; text-decoration:none; color:var(--ink);
+  }
+  .hero-card{
+    background:var(--ink); color:var(--paper); padding:28px;
+    border-radius:2px; position:relative; margin-top:6px;
+  }
+  .hero-card .tag{
+    font-size:0.72rem; text-transform:uppercase; color:var(--brass);
+    margin-bottom:14px; display:block;
+  }
+  .hero-card .stat{font-family:'Fraunces', serif; font-size:2.4rem; font-weight:700;}
+  .hero-card .stat-label{font-size:0.85rem; color:#C9C4B4; margin-top:4px;}
+  .hero-card hr{border:none; border-top:1px solid rgba(237,230,214,0.15); margin:20px 0;}
+
+  /* TICKER */
+  .ticker-strip{
+    background:var(--pine); color:var(--paper);
+    overflow:hidden; white-space:nowrap; margin-top:64px;
+    border-top:1px solid var(--pine-dark); border-bottom:1px solid var(--pine-dark);
+  }
+  .ticker-track{
+    display:inline-block; padding:12px 0;
+    animation: scroll-left 32s linear infinite;
+    font-size:0.82rem;
+  }
+  .ticker-track span{margin-right:48px; opacity:0.92;}
+  .ticker-track span::before{content:'◆'; color:var(--brass); margin-right:10px; font-size:0.6rem;}
+  @keyframes scroll-left{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-50%);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ticker-track{animation:none;}
+  }
+
+  /* SECTIONS */
+  section{padding:96px 0;}
+  section.alt{background:var(--paper-dim);}
+  .section-head{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    margin-bottom:52px; gap:24px; flex-wrap:wrap;
+  }
+  .section-num{
+    font-size:0.78rem; color:var(--brass); margin-bottom:10px; display:block;
+  }
+  h2.section-title{font-size:clamp(1.8rem,3vw,2.6rem); font-weight:600; max-width:20ch;}
+  .section-desc{max-width:36ch; color:var(--ink-soft); font-size:0.98rem;}
+
+  /* SERVICE CARDS */
+  .services-grid{display:grid; grid-template-columns:1fr 1fr; gap:24px;}
+  .service-card{
+    border:1px solid var(--line); padding:36px; border-radius:2px;
+    background:var(--paper); position:relative; transition:border-color .15s;
+  }
+  .service-card:hover{border-color:var(--ink);}
+  .service-card .icon-pin{
+    width:34px; height:34px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Fraunces', serif; font-weight:700; margin-bottom:22px;
+    color:var(--paper);
+  }
+  .pin-pine{background:var(--pine);}
+  .pin-brick{background:var(--brick);}
+  .service-card h3{font-size:1.4rem; font-weight:600; margin-bottom:12px;}
+  .service-card p{color:var(--ink-soft); font-size:0.95rem; margin-bottom:20px;}
+  .service-list{list-style:none; padding:0; margin:0 0 24px; font-size:0.9rem;}
+  .service-list li{
+    padding:9px 0; border-top:1px solid var(--line); color:var(--ink-soft);
+    display:flex; justify-content:space-between;
+  }
+  .service-list li:first-child{border-top:none;}
+  .service-list li b{color:var(--ink); font-weight:600;}
+  .card-link{
+    font-size:0.88rem; font-weight:600; text-decoration:none; color:var(--ink);
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .card-link::after{content:'→'; transition:transform .15s;}
+  .card-link:hover::after{transform:translateX(4px);}
+
+  /* GALLERY */
+  .gallery-grid{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:8px;
+  }
+  .reel{
+    aspect-ratio:9/14; border-radius:2px; position:relative; overflow:hidden;
+    display:flex; align-items:flex-end; padding:16px;
+    color:var(--paper); font-size:0.8rem;
+  }
+  .reel::after{
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.55));
+  }
+  .reel span{position:relative; z-index:1; font-family:'JetBrains Mono', monospace;}
+  .reel:nth-child(1){background:linear-gradient(160deg,#2F5D50,#16332C);}
+  .reel:nth-child(2){background:linear-gradient(160deg,#C4432B,#7A2A1B);}
+  .reel:nth-child(3){background:linear-gradient(160deg,#8C7851,#5A4B30);}
+  .reel:nth-child(4){background:linear-gradient(160deg,#1B1B18,#3A3730);}
+  .gallery-note{
+    margin-top:20px; font-size:0.85rem; color:var(--ink-soft);
+    display:flex; align-items:center; gap:8px;
+  }
+  .gallery-note .dot{width:6px;height:6px;background:var(--brick);border-radius:50%;}
+
+  /* HOW IT WORKS */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:0; border-top:1px solid var(--line);}
+  .step{
+    padding:32px 28px; border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .step:last-child{border-right:none;}
+  .step .step-num{
+    font-family:'JetBrains Mono', monospace; color:var(--brass); font-size:0.85rem;
+  }
+  .step h3{font-size:1.15rem; margin:14px 0 10px; font-weight:600;}
+  .step p{color:var(--ink-soft); font-size:0.9rem; margin:0;}
+
+  /* PRICING */
+  .pricing-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .price-card{
+    border:1px solid var(--line); padding:32px; border-radius:2px; background:var(--paper);
+  }
+  .price-card.featured{
+    background:var(--ink); color:var(--paper); border-color:var(--ink); transform:translateY(-8px);
+  }
+  .price-card.featured .price-desc{color:#C9C4B4;}
+  .price-name{font-size:0.85rem; text-transform:uppercase; color:var(--brass); margin-bottom:12px;}
+  .featured .price-name{color:var(--brass);}
+  .price-amount{font-family:'Fraunces', serif; font-size:2.2rem; font-weight:700;}
+  .price-usd{font-size:0.78rem; color:var(--brass); margin-top:4px;}
+  .featured .price-usd{color:var(--brass);}
+  .price-desc{color:var(--ink-soft); font-size:0.88rem; margin:14px 0 22px;}
+  .pay-methods{
+    margin-top:28px; padding-top:24px; border-top:1px solid var(--line);
+    display:flex; align-items:center; gap:14px; font-size:0.82rem; color:var(--ink-soft); flex-wrap:wrap;
+  }
+  .pay-methods b{color:var(--ink); font-weight:600;}
+  .price-card ul{list-style:none; padding:0; margin:0 0 24px; font-size:0.88rem;}
+  .price-card li{padding:7px 0; display:flex; gap:8px;}
+  .price-card li::before{content:'—'; color:var(--brick);}
+
+  /* CTA */
+  .cta-band{
+    background:var(--pine); color:var(--paper); border-radius:2px;
+    padding:64px 56px; display:flex; justify-content:space-between; align-items:center; gap:32px;
+  }
+  .cta-band h2{font-size:2rem; max-width:16ch;}
+  .cta-band .btn-primary{background:var(--paper); color:var(--ink);}
+
+  footer{padding:56px 0 40px; border-top:1px solid var(--line);}
+  footer .wrap{display:flex; justify-content:space-between; align-items:center; font-size:0.85rem; color:var(--ink-soft);}
+  .foot-links{display:flex; gap:22px;}
+  .foot-links a{text-decoration:none;}
+
+  @media (max-width:860px){
+    .hero-inner{grid-template-columns:1fr;}
+    .services-grid, .gallery-grid, .steps, .pricing-grid{grid-template-columns:1fr 1fr;}
+    .steps{grid-template-columns:1fr;}
+    .step{border-right:none;}
+    .price-card.featured{transform:none;}
+    .cta-band{flex-direction:column; text-align:center;}
+  }
+  @media (max-width:600px){
+    .nav-links{display:none;}
+    .gallery-grid, .services-grid, .pricing-grid{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="logo"><span class="logo-mark"></span>Dispatch</div>
+    <div class="nav-links">
+      <a href="#outreach">Outreach</a>
+      <a href="#editing">Video Editing</a>
+      <a href="#how">How it works</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <a href="#signup" class="nav-cta">Get started</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap hero-inner">
+    <div>
+      <span class="eyebrow mono">Outreach &amp; content, run by real people</span>
+      <h1 class="headline">Grow the <em>right</em><br>audience. Not<br>just a bigger one.</h1>
+      <p class="hero-sub">Dispatch connects brands and creators with a real network of niche-matched people for genuine engagement — plus a video editing team to make the content worth following.</p>
+      <div class="hero-actions">
+        <a href="#signup" class="btn-primary">Start a campaign</a>
+        <a href="#editing" class="btn-ghost">See sample edits</a>
+      </div>
+    </div>
+    <div class="hero-card">
+      <span class="tag mono">This week on Dispatch</span>
+      <div class="stat">1,204</div>
+      <div class="stat-label">genuine engagements logged across active campaigns</div>
+      <hr>
+      <span class="tag mono">Network</span>
+      <div class="stat">38</div>
+      <div class="stat-label">niches currently staffed with real members</div>
+    </div>
+  </div>
+
+  <div class="ticker-strip">
+    <div class="ticker-track mono">
+      <span>New match: fitness niche → 12 engagements logged</span>
+      <span>Video order #204 delivered — 48hr turnaround</span>
+      <span>Network member joined: indie music niche</span>
+      <span>Campaign started: SaaS founder outreach</span>
+      <span>Video order #205 in editing — reels style</span>
+      <span>New match: home cooking niche → 9 engagements logged</span>
+      <span>New match: fitness niche → 12 engagements logged</span>
+      <span>Video order #204 delivered — 48hr turnaround</span>
+      <span>Network member joined: indie music niche</span>
+      <span>Campaign started: SaaS founder outreach</span>
+      <span>Video order #205 in editing — reels style</span>
+      <span>New match: home cooking niche → 9 engagements logged</span>
+    </div>
+  </div>
+</header>
+
+<section id="outreach">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-num mono">01 — Services</span>
+        <h2 class="section-title">Two ways to build a real presence</h2>
+      </div>
+      <p class="section-desc">Pick one or run both together — most clients do.</p>
+    </div>
+
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="icon-pin pin-pine">O</div>
+        <h3>Outreach &amp; Growth</h3>
+        <p>Your account gets matched to real people already interested in your niche. They engage, follow, and share — because it's genuinely relevant to them, not because it's automated.</p>
+        <ul class="service-list">
+          <li>Niche matching <b>38+ categories</b></li>
+          <li>Engagement rate-limiting <b>protects your account</b></li>
+          <li>Reporting <b>weekly, per campaign</b></li>
+        </ul>
+        <a href="#signup" class="card-link">Start an outreach campaign</a>
+      </div>
+
+      <div class="service-card" id="editing">
+        <div class="icon-pin pin-brick">V</div>
+        <h3>Video Editing</h3>
+        <p>Hand off raw footage, pick a style, get back content built to actually hold attention — reels, talking-head cuts, promos, and more.</p>
+        <ul class="service-list">
+          <li>Styles <b>Fast-cut, cinematic, talking head</b></li>
+          <li>Turnaround <b>24–72 hours</b></li>
+          <li>Revisions <b>included</b></li>
+        </ul>
+        <a href="#signup" class="card-link">Order a video edit</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-num mono">02 — Portfolio</span>
+        <h2 class="section-title">A sample of recent edits</h2>
+      </div>
+      <p class="section-desc">Every style is done by a real editor on the team — pick the one closest to your vibe when you order.</p>
+    </div>
+
+    <div class="gallery-grid">
+      <div class="reel"><span>Fast-cut Reel</span></div>
+      <div class="reel"><span>Cinematic Promo</span></div>
+      <div class="reel"><span>Talking Head</span></div>
+      <div class="reel"><span>Podcast Clips</span></div>
+    </div>
+    <div class="gallery-note"><span class="dot"></span>Sample thumbnails shown — real portfolio videos load here once connected.</div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-num mono">03 — Process</span>
+        <h2 class="section-title">How a campaign runs</h2>
+      </div>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <span class="step-num mono">01</span>
+        <h3>Tell us your niche</h3>
+        <p>Submit your account and what audience you're actually trying to reach — not just "more followers."</p>
+      </div>
+      <div class="step">
+        <span class="step-num mono">02</span>
+        <h3>We match &amp; edit</h3>
+        <p>Your outreach campaign gets staffed with relevant network members, and any video orders go to an editor in your style.</p>
+      </div>
+      <div class="step">
+        <span class="step-num mono">03</span>
+        <h3>Track real results</h3>
+        <p>See engagement quality, not vanity counts, in your dashboard — with weekly reporting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="alt" id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="section-num mono">04 — Pricing</span>
+        <h2 class="section-title">Start small, scale when it's working</h2>
+      </div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-name mono">Starter</div>
+        <div class="price-amount">₦45,000</div>
+        <div class="price-usd mono">≈ $30 USD</div>
+        <p class="price-desc">A single outreach push or one video edit — good for testing the waters.</p>
+        <ul>
+          <li>1 campaign or 1 video order</li>
+          <li>Standard turnaround</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#signup" class="btn-ghost" style="display:block; text-align:center;">Choose Starter</a>
+      </div>
+      <div class="price-card featured">
+        <div class="price-name mono">Growth</div>
+        <div class="price-amount">₦120,000<span style="font-size:1rem; font-weight:400;">/mo</span></div>
+        <div class="price-usd mono">≈ $80 USD/mo</div>
+        <p class="price-desc">Ongoing outreach campaigns plus a standing video editing slot each month.</p>
+        <ul>
+          <li>Continuous outreach matching</li>
+          <li>2 video edits / month</li>
+          <li>Priority turnaround</li>
+          <li>Weekly reporting</li>
+        </ul>
+        <a href="#signup" class="btn-primary" style="display:block; text-align:center;">Choose Growth</a>
+      </div>
+      <div class="price-card">
+        <div class="price-name mono">Agency</div>
+        <div class="price-amount">Custom</div>
+        <div class="price-usd mono">Priced per account</div>
+        <p class="price-desc">Managing several accounts or clients of your own? We'll set up a dedicated plan.</p>
+        <ul>
+          <li>Multi-account management</li>
+          <li>Dedicated account manager</li>
+          <li>Custom video volume</li>
+        </ul>
+        <a href="#signup" class="btn-ghost" style="display:block; text-align:center;">Talk to us</a>
+      </div>
+    </div>
+    <div class="pay-methods">
+      <span><b>Pay with:</b> Naira debit/credit cards, bank transfer, USSD, or international cards (USD)</span>
+    </div>
+  </div>
+</section>
+
+<section id="signup">
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>Ready to build a real audience?</h2>
+      <a href="#" class="btn-primary">Create your account</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Dispatch</span>
+    <div class="foot-links">
+      <a href="#outreach">Outreach</a>
+      <a href="#editing">Video Editing</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>

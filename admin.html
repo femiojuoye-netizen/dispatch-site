@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dispatch — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#EDE6D6; --paper-dim:#E2D9C4; --ink:#1B1B18; --ink-soft:#4A463D;
+    --pine:#2F5D50; --pine-dark:#1F3F36; --brick:#C4432B; --brass:#8C7851;
+    --line: rgba(27,27,24,0.14); --ok:#2F5D50; --pending:#8C7851; --late:#C4432B;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:'Inter',sans-serif; line-height:1.5;}
+  h1,h2,h3{font-family:'Fraunces',serif; margin:0;}
+  .mono{font-family:'JetBrains Mono',monospace; letter-spacing:0.02em;}
+
+  .app{display:grid; grid-template-columns:240px 1fr; min-height:100vh;}
+
+  /* SIDEBAR */
+  .sidebar{background:var(--ink); color:var(--paper); padding:28px 20px; display:flex; flex-direction:column;}
+  .logo{font-family:'Fraunces',serif; font-weight:700; font-size:1.2rem; display:flex; align-items:center; gap:8px; margin-bottom:40px;}
+  .logo-mark{width:9px; height:9px; background:var(--brick); border-radius:50%;}
+  .nav-group{margin-bottom:28px;}
+  .nav-label{font-size:0.68rem; text-transform:uppercase; color:#8A8676; margin-bottom:10px; letter-spacing:0.06em;}
+  .nav-item{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:9px 10px; border-radius:2px; font-size:0.9rem; color:#D9D4C4;
+    text-decoration:none; margin-bottom:2px; cursor:pointer;
+  }
+  .nav-item.active{background:rgba(237,230,214,0.1); color:var(--paper); font-weight:500;}
+  .nav-item .count{font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:#8A8676;}
+  .nav-item.active .count{color:var(--brass);}
+  .admin-footer{margin-top:auto; padding-top:20px; border-top:1px solid rgba(237,230,214,0.12);}
+  .admin-who{display:flex; align-items:center; gap:10px; font-size:0.85rem;}
+  .avatar{width:28px; height:28px; border-radius:50%; background:var(--pine); display:flex; align-items:center; justify-content:center; font-size:0.75rem; font-weight:600;}
+  .who-sub{font-size:0.72rem; color:#8A8676;}
+
+  /* MAIN */
+  main{padding:36px 44px; overflow-x:hidden;}
+  .topbar{display:flex; justify-content:space-between; align-items:center; margin-bottom:32px;}
+  .topbar h1{font-size:1.7rem; font-weight:600;}
+  .topbar-sub{color:var(--ink-soft); font-size:0.9rem; margin-top:4px;}
+  .admin-switch{display:flex; gap:8px; align-items:center; font-size:0.82rem; color:var(--ink-soft);}
+  .admin-pill{
+    display:flex; align-items:center; gap:6px; padding:6px 12px; border:1px solid var(--line);
+    border-radius:20px; background:var(--paper);
+  }
+  .admin-pill .dot{width:6px; height:6px; border-radius:50%; background:var(--pine);}
+
+  /* STAT CARDS */
+  .stat-row{display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:36px;}
+  .stat-card{background:var(--paper-dim); border:1px solid var(--line); border-radius:2px; padding:20px;}
+  .stat-card .label{font-size:0.75rem; color:var(--ink-soft); text-transform:uppercase; margin-bottom:10px;}
+  .stat-card .value{font-family:'Fraunces',serif; font-size:1.9rem; font-weight:700;}
+  .stat-card .delta{font-size:0.78rem; margin-top:6px;}
+  .delta.up{color:var(--pine);}
+  .delta.warn{color:var(--brick);}
+
+  /* PANELS */
+  .grid-2{display:grid; grid-template-columns:1.5fr 1fr; gap:20px; margin-bottom:20px;}
+  .panel{background:var(--paper); border:1px solid var(--line); border-radius:2px; padding:24px;}
+  .panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;}
+  .panel-head h2{font-size:1.05rem; font-weight:600;}
+  .panel-head .view-all{font-size:0.8rem; color:var(--ink-soft); text-decoration:none;}
+
+  table{width:100%; border-collapse:collapse; font-size:0.86rem;}
+  th{
+    text-align:left; font-size:0.72rem; text-transform:uppercase; color:var(--ink-soft);
+    font-weight:500; padding:0 10px 10px; border-bottom:1px solid var(--line);
+  }
+  td{padding:12px 10px; border-bottom:1px solid var(--line); vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  .name-cell{display:flex; align-items:center; gap:10px;}
+  .mini-avatar{
+    width:26px; height:26px; border-radius:50%; background:var(--pine-dark); color:var(--paper);
+    display:flex; align-items:center; justify-content:center; font-size:0.68rem; font-weight:600; flex-shrink:0;
+  }
+  .badge{
+    font-size:0.72rem; padding:4px 10px; border-radius:12px; font-weight:500; white-space:nowrap;
+  }
+  .badge.ok{background:rgba(47,93,80,0.12); color:var(--pine);}
+  .badge.pending{background:rgba(140,120,81,0.15); color:var(--brass);}
+  .badge.late{background:rgba(196,67,43,0.12); color:var(--brick);}
+  .assignee{font-size:0.78rem; color:var(--ink-soft);}
+
+  /* ACTIVITY FEED */
+  .feed-item{display:flex; gap:12px; padding:12px 0; border-bottom:1px solid var(--line);}
+  .feed-item:last-child{border-bottom:none;}
+  .feed-dot{width:6px; height:6px; border-radius:50%; background:var(--brick); margin-top:6px; flex-shrink:0;}
+  .feed-text{font-size:0.86rem;}
+  .feed-time{font-size:0.72rem; color:var(--ink-soft); margin-top:2px;}
+
+  /* NETWORK / MONEY ROW */
+  .grid-3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px;}
+  .money-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:0.88rem;}
+  .money-row:last-child{border-bottom:none;}
+  .money-row b{font-family:'JetBrains Mono',monospace;}
+
+  @media (max-width:1000px){
+    .app{grid-template-columns:1fr;}
+    .sidebar{display:none;}
+    .stat-row, .grid-2, .grid-3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="logo"><span class="logo-mark"></span>Dispatch</div>
+
+    <div class="nav-group">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active">Dashboard</div>
+      <div class="nav-item">Activity Log</div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Business</div>
+      <div class="nav-item">Clients <span class="count">24</span></div>
+      <div class="nav-item">Campaigns <span class="count">17</span></div>
+      <div class="nav-item">Video Orders <span class="count">9</span></div>
+      <div class="nav-item">Network Members <span class="count">142</span></div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Finance</div>
+      <div class="nav-item">Payments In</div>
+      <div class="nav-item">Payouts Due <span class="count">6</span></div>
+    </div>
+
+    <div class="admin-footer">
+      <div class="admin-who">
+        <div class="avatar">A1</div>
+        <div>
+          <div>You</div>
+          <div class="who-sub">Admin · online</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <main>
+    <div class="topbar">
+      <div>
+        <h1>Good to see you.</h1>
+        <div class="topbar-sub">Here's what's moving across Dispatch today.</div>
+      </div>
+      <div class="admin-switch">
+        <div class="admin-pill"><span class="dot"></span>You</div>
+        <div class="admin-pill" style="opacity:0.6;"><span class="dot" style="background:var(--brass);"></span>Co-admin · away</div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card">
+        <div class="label mono">Active Campaigns</div>
+        <div class="value">17</div>
+        <div class="delta up">+3 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="label mono">Video Orders Open</div>
+        <div class="value">9</div>
+        <div class="delta warn">2 due today</div>
+      </div>
+      <div class="stat-card">
+        <div class="label mono">Revenue (30d)</div>
+        <div class="value">$4,860</div>
+        <div class="delta up">+12% vs last month</div>
+      </div>
+      <div class="stat-card">
+        <div class="label mono">Payouts Due</div>
+        <div class="value">$1,120</div>
+        <div class="delta warn">6 members waiting</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Video Orders</h2>
+          <a href="#" class="view-all">View all →</a>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Client</th><th>Style</th><th>Status</th><th>Due</th><th>Assigned</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="name-cell"><div class="mini-avatar">MK</div>Maya K.</td>
+              <td>Fast-cut Reel</td>
+              <td><span class="badge pending">In editing</span></td>
+              <td>Today</td>
+              <td class="assignee">You</td>
+            </tr>
+            <tr>
+              <td class="name-cell"><div class="mini-avatar">JR</div>Jordan R.</td>
+              <td>Talking Head</td>
+              <td><span class="badge late">Overdue</span></td>
+              <td>Yesterday</td>
+              <td class="assignee">Co-admin</td>
+            </tr>
+            <tr>
+              <td class="name-cell"><div class="mini-avatar">SN</div>Sana N.</td>
+              <td>Cinematic Promo</td>
+              <td><span class="badge ok">Delivered</span></td>
+              <td>Jul 29</td>
+              <td class="assignee">You</td>
+            </tr>
+            <tr>
+              <td class="name-cell"><div class="mini-avatar">DP</div>Dele P.</td>
+              <td>Podcast Clips</td>
+              <td><span class="badge pending">New order</span></td>
+              <td>Aug 2</td>
+              <td class="assignee">Unassigned</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Activity</h2>
+        </div>
+        <div class="feed">
+          <div class="feed-item">
+            <div class="feed-dot"></div>
+            <div>
+              <div class="feed-text">New client signed up — <b>fitness niche</b></div>
+              <div class="feed-time mono">12 min ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--pine);"></div>
+            <div>
+              <div class="feed-text">Video order #205 delivered to Sana N.</div>
+              <div class="feed-time mono">1 hr ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--brass);"></div>
+            <div>
+              <div class="feed-text">Payout requested — network member #88</div>
+              <div class="feed-time mono">3 hrs ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot"></div>
+            <div>
+              <div class="feed-text">Campaign paused — rate limit reached</div>
+              <div class="feed-time mono">5 hrs ago</div>
+            </div>
+          </div>
+          <div class="feed-item">
+            <div class="feed-dot" style="background:var(--pine);"></div>
+            <div>
+              <div class="feed-text">Payment received — $220 from Jordan R.</div>
+              <div class="feed-time mono">Yesterday</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Campaigns</h2>
+          <a href="#" class="view-all">View all →</a>
+        </div>
+        <table>
+          <thead><tr><th>Client</th><th>Niche</th><th>Engagements</th></tr></thead>
+          <tbody>
+            <tr><td>Maya K.</td><td>Fitness</td><td>142</td></tr>
+            <tr><td>Jordan R.</td><td>SaaS</td><td>96</td></tr>
+            <tr><td>Sana N.</td><td>Music</td><td>210</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Network Snapshot</h2>
+        </div>
+        <div class="money-row"><span>Active members</span><b>142</b></div>
+        <div class="money-row"><span>Niches staffed</span><b>38</b></div>
+        <div class="money-row"><span>New this week</span><b>+9</b></div>
+        <div class="money-row"><span>Avg. engagement rating</span><b>4.7</b></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h2>Money</h2>
+        </div>
+        <div class="money-row"><span>Revenue (30d)</span><b>$4,860</b></div>
+        <div class="money-row"><span>Payouts (30d)</span><b>$1,920</b></div>
+        <div class="money-row"><span>Margin</span><b>$2,940</b></div>
+        <div class="money-row"><span>Pending payout</span><b>$1,120</b></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+</body>
+</html>
